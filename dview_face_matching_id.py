@@ -3,6 +3,8 @@ import cv2
 import glob
 import os
 import numpy as np
+import start1.utils as amutils
+import imutils
 
 def filebrowser(indir,ext=""):
     "Returns files with an extension"
@@ -117,28 +119,68 @@ def match_faces(frame,face_locations,face_encodings,kfe,kfn,show_matches=True):
         # Draw a label with a name below the face
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 2)
         return frame
 
 kfn,kfe = get_face_encodings()
 
-imname= r"C:\Work\per\dview\face_recognition\capture_2504_1.png"
-imname= r"C:\Work\per\dview\face_recognition\dl_id2_amit.jpg"
-#imout =
-frame = cv2.imread(imname)
-image = face_recognition.load_image_file(imname)
-face_locations = face_recognition.face_locations(image)
-face_encodings = face_recognition.face_encodings(image, face_locations)
-frame = match_faces(frame, face_locations, face_encodings, kfe, kfn,show_matches=False)
-#print(face_locations)
-#for face_data in face_locations:
-#    (top, right, bottom, left) = face_data
-#    cv2.rectangle(frame, (left, top ), (right, bottom), (0, 0, 255), 2)
-frame_small = cv2.resize(frame,(2*480,2*640))
-cv2.imshow('faces',frame_small)
-# Hit 'q' on the keyboard to quit!
-cv2.waitKey(0)
-print('we are there')
+input_type = "image"
+if input_type == "image":
+    #imname= r"C:\Work\per\dview\face_recognition\capture_2504_1.png"
+    imname= r"C:\Work\per\dview\face_recognition\dl_id2_amit.jpg"
+    imout = r"C:\Work\per\dview\face_recognition\dl_id2_match.jpg"
+    #imout =
+    frame = cv2.imread(imname)
+    image = face_recognition.load_image_file(imname)
+    face_locations = face_recognition.face_locations(image)
+    face_encodings = face_recognition.face_encodings(image, face_locations)
+    frame = match_faces(frame, face_locations, face_encodings, kfe, kfn,show_matches=False)
+    #print(face_locations)
+    #for face_data in face_locations:
+    #    (top, right, bottom, left) = face_data
+    #    cv2.rectangle(frame, (left, top ), (right, bottom), (0, 0, 255), 2)
+    frame_small = cv2.resize(frame,(2*480,2*640))
+    cv2.imshow('faces',frame_small)
+    # Hit 'q' on the keyboard to quit!
+    cv2.waitKey(0)
+    print('we are there')
+    cv2.imwrite(imout,frame)
+
+if input_type == "webcam":
+
+    outvideo_flag = True
+
+    if outvideo_flag:
+        videoname = r'C:\Work\per\dview\dview_face_toolbox\idmatch_webcam_example2.avi'
+        videoout = amutils.WriteVideo(outputdir=os.path.dirname(videoname), outputname=os.path.basename(videoname))
+
+    #cv2.namedWindow("DVIEW ID MATCH")
+    cam = cv2.VideoCapture(0)
+    ret, frame = cam.read()
+    while True:
+        ret, im = cam.read()
+        im = imutils.resize(im, width=720)
+        #image = face_recognition.load_image_file(imname)
+        face_locations = face_recognition.face_locations(im)
+        if len(face_locations)>0: #some faces are found
+            face_encodings = face_recognition.face_encodings(im, face_locations)
+            frame = match_faces(im, face_locations, face_encodings, kfe, kfn, show_matches=False)
+        else:
+            frame = im
+        # print(face_locations)
+        # for face_data in face_locations:
+        #    (top, right, bottom, left) = face_data
+        #    cv2.rectangle(frame, (left, top ), (right, bottom), (0, 0, 255), 2)
+        frame_small = cv2.resize(frame, (2 * 480, 2 * 640))
+        #cv2.imshow('faces', frame_small)
+
+        cv2.imshow('DVIEW ID match:', frame_small)
+        if outvideo_flag:
+            videoout.push_frame(frame_small)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    if outvideo_flag:
+        videoout.release_video()
 
 
-#making the face encoding dictionary
