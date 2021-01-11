@@ -7,13 +7,23 @@ import cv2
 # OpenCV is *not* required to use the face_recognition library. It's only required if you want to run this
 # specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
+input_file = "hamilton_clip.mp4"
+output_file = "hamilton_face.mp4"
+
+input_file = r'C:\Work\per\data\VueMotionLabs\Recordings\CarRacing\person_car_0_3.mp4'
+output_file = r'C:\Work\per\data\VueMotionLabs\Recordings\CarRacing\person_0_3_face.avi'
+
 # Open the input movie file
-input_movie = cv2.VideoCapture("hamilton_clip.mp4")
+input_movie = cv2.VideoCapture(input_file)
 length = int(input_movie.get(cv2.CAP_PROP_FRAME_COUNT))
+
+
+ret, frame = input_movie.read()
 
 # Create an output movie file (make sure resolution/frame rate matches input video!)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-output_movie = cv2.VideoWriter('output.avi', fourcc, 29.97, (640, 360))
+#output_movie = cv2.VideoWriter('output.avi', fourcc, 29.97, (640, 360))
+output_movie = cv2.VideoWriter(output_file, fourcc, 29.97, (frame.shape[0], frame.shape[1]))
 
 # Load some sample pictures and learn how to recognize them.
 lmm_image = face_recognition.load_image_file("lin-manuel-miranda.png")
@@ -73,9 +83,9 @@ while True:
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
         # Draw a label with a name below the face
-        cv2.rectangle(frame, (left, bottom - 25), (right, bottom), (0, 0, 255), cv2.FILLED)
+        #cv2.rectangle(frame, (left, bottom - 25), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+        #cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
 
     # Write the resulting image to the output video file
     print("Writing frame {} / {}".format(frame_number, length))
